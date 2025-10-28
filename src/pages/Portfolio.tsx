@@ -1,10 +1,20 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import portfolio1 from "@/assets/portfolio-1.jpg";
 import portfolio2 from "@/assets/portfolio-2.jpg";
 import portfolio3 from "@/assets/portfolio-3.jpg";
+import portfolio4 from "@/assets/portfolio-4.jpg";
+import portfolio5 from "@/assets/portfolio-5.jpg";
+import portfolio6 from "@/assets/portfolio-6.jpg";
+import portfolio7 from "@/assets/portfolio-7.jpg";
+import portfolio8 from "@/assets/portfolio-8.jpg";
+import portfolio9 from "@/assets/portfolio-9.jpg";
 
 const Portfolio = () => {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [visibleCount, setVisibleCount] = useState(6);
+
   const projects = [
     {
       id: 1,
@@ -35,7 +45,7 @@ const Portfolio = () => {
       title: "Wellness Co. Premium Package",
       category: "Full Branding",
       description: "VIP branding package including logo, website design, business stationery, and complete marketing materials for a wellness startup.",
-      image: portfolio1,
+      image: portfolio4,
       tags: ["Full Branding", "Web Design", "Marketing"],
     },
     {
@@ -43,7 +53,7 @@ const Portfolio = () => {
       title: "Urban Eats Menu Design",
       category: "Print Design",
       description: "Multi-page menu design with custom illustrations, professional photography integration, and print-ready files for a trendy urban restaurant.",
-      image: portfolio3,
+      image: portfolio5,
       tags: ["Menu Design", "Print Design", "Food Photography"],
     },
     {
@@ -51,7 +61,7 @@ const Portfolio = () => {
       title: "EcoLife Product Packaging",
       category: "Packaging Design",
       description: "Sustainable and eye-catching packaging design for an eco-friendly product line, including labels, boxes, and promotional materials.",
-      image: portfolio2,
+      image: portfolio8,
       tags: ["Packaging", "Sustainable Design", "Product Design"],
     },
     {
@@ -59,7 +69,7 @@ const Portfolio = () => {
       title: "Fitness Pro Mobile App UI",
       category: "UI/UX Design",
       description: "Modern mobile app interface design with intuitive user experience, featuring custom icons, workout screens, and progress tracking.",
-      image: portfolio1,
+      image: portfolio9,
       tags: ["UI/UX", "Mobile App", "Interface Design"],
     },
     {
@@ -75,12 +85,23 @@ const Portfolio = () => {
       title: "Digital Agency Website Design",
       category: "Web Design",
       description: "Full website design with modern layout, interactive elements, portfolio showcase, and conversion-optimized landing pages.",
-      image: portfolio2,
+      image: portfolio7,
       tags: ["Web Design", "Landing Page", "Digital"],
     },
   ];
 
   const categories = ["All", "Brand Identity", "Social Media", "Web Design", "Print Design", "Packaging Design"];
+
+  const filteredProjects = selectedCategory === "All" 
+    ? projects 
+    : projects.filter(project => project.category === selectedCategory);
+
+  const visibleProjects = filteredProjects.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredProjects.length;
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 6);
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -101,7 +122,15 @@ const Portfolio = () => {
             <Badge
               key={index}
               variant="outline"
-              className="px-6 py-2 text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-all duration-300 border-2"
+              onClick={() => {
+                setSelectedCategory(category);
+                setVisibleCount(6);
+              }}
+              className={`px-6 py-2 text-sm cursor-pointer transition-all duration-300 border-2 ${
+                selectedCategory === category
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "hover:bg-primary hover:text-primary-foreground"
+              }`}
             >
               {category}
             </Badge>
@@ -110,7 +139,7 @@ const Portfolio = () => {
 
         {/* Portfolio Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => (
+          {visibleProjects.map((project, index) => (
             <Card
               key={project.id}
               className="group overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border-2 hover:border-accent animate-fade-in"
@@ -146,15 +175,20 @@ const Portfolio = () => {
         {/* Load More Section */}
         <div className="text-center mt-16 animate-fade-in">
           <p className="text-muted-foreground mb-6">
-            Want to see more of our work? We have completed over 500+ projects for satisfied clients.
+            {hasMore 
+              ? `Showing ${visibleCount} of ${filteredProjects.length} projects`
+              : `Showing all ${filteredProjects.length} projects`
+            }
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#"
-              className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-light transition-all duration-300 font-medium"
-            >
-              Load More Projects
-            </a>
+            {hasMore && (
+              <button
+                onClick={handleLoadMore}
+                className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-light transition-all duration-300 font-medium"
+              >
+                Load More Projects
+              </button>
+            )}
             <a
               href="/contact"
               className="px-8 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent-light transition-all duration-300 font-medium"
