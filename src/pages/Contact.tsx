@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -21,6 +22,9 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Prevent multiple submissions
+    if (isSubmitting) return;
+    
     // Basic validation
     if (!formData.name || !formData.email || !formData.message) {
       toast({
@@ -30,6 +34,8 @@ const Contact = () => {
       });
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       // Save to database
@@ -46,14 +52,18 @@ const Contact = () => {
 
       if (emailError) {
         console.error('Email sending failed:', emailError);
-        // Don't throw - form was saved, just email failed
+        // Show warning but don't fail - form was saved
+        toast({
+          title: "Message Saved",
+          description: "Your message was saved but email notification failed. We'll still respond within 24 hours.",
+        });
+      } else {
+        // Success toast
+        toast({
+          title: "Message Sent!",
+          description: "Thank you for contacting us. We'll get back to you within 24 hours.",
+        });
       }
-
-      // Success toast
-      toast({
-        title: "Message Sent!",
-        description: "Thank you for contacting us. We'll get back to you within 24 hours.",
-      });
 
       // Reset form
       setFormData({
@@ -70,6 +80,8 @@ const Contact = () => {
         description: "Failed to send message. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -236,9 +248,10 @@ const Contact = () => {
                   <Button
                     type="submit"
                     size="lg"
-                    className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground hover:shadow-lg hover:scale-105 transition-all duration-300"
+                    disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Send Message <Send className="ml-2 w-5 h-5" />
+                    {isSubmitting ? "Sending..." : "Send Message"} <Send className="ml-2 w-5 h-5" />
                   </Button>
                 </form>
               </CardContent>
